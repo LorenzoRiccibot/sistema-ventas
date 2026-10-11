@@ -1,0 +1,2124 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PowerFit Store - Sistema de Ventas</title>
+
+  <style>
+    /* ============================================================
+       VARIABLES GLOBALES DE DISEÑO
+       Paleta inspirada en fitness/deporte: fondo oscuro + acento
+       verde lima (energía) y naranja (fuerza). Pulido visual: más
+       niveles de profundidad, tipografía con mejor jerarquía,
+       sombras en capas y transiciones sutiles en toda la interfaz.
+       ============================================================ */
+    :root {
+      --color-fondo: #0b0d12;
+      --color-superficie: #151821;
+      --color-superficie-clara: #1c2029;
+      --color-superficie-hover: #222736;
+      --color-borde: #282e3b;
+      --color-borde-suave: #1e2330;
+      --color-texto: #eef1f5;
+      --color-texto-suave: #9aa3b2;
+      --color-texto-tenue: #6b7280;
+      --color-primario: #7ef542;
+      --color-primario-oscuro: #5fd42a;
+      --color-primario-suave: rgba(126, 245, 66, 0.1);
+      --color-acento: #ff8a3d;
+      --color-acento-suave: rgba(255, 138, 61, 0.12);
+      --color-peligro: #ff5c5c;
+      --color-peligro-suave: rgba(255, 92, 92, 0.1);
+      --radio-sm: 8px;
+      --radio-borde: 12px;
+      --radio-lg: 18px;
+      --radio-full: 999px;
+      --sombra-sm: 0 2px 8px rgba(0, 0, 0, 0.28);
+      --sombra: 0 12px 32px -12px rgba(0, 0, 0, 0.55);
+      --sombra-lg: 0 24px 60px -20px rgba(0, 0, 0, 0.65);
+      --fuente: "Segoe UI", system-ui, -apple-system, Roboto, Arial, sans-serif;
+      --transicion: 0.18s ease;
+      --transicion-lenta: 0.3s ease;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html, body {
+      margin: 0;
+      padding: 0;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      background:
+        radial-gradient(1100px 520px at 12% -8%, rgba(126, 245, 66, 0.06), transparent 60%),
+        radial-gradient(900px 480px at 100% 0%, rgba(255, 138, 61, 0.05), transparent 55%),
+        var(--color-fondo);
+      background-attachment: fixed;
+      color: var(--color-texto);
+      font-family: var(--fuente);
+      line-height: 1.55;
+      min-height: 100vh;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    ::selection {
+      background-color: var(--color-primario);
+      color: #0b0d12;
+    }
+
+    /* Scrollbar más prolija (solo estético, no afecta funcionalidad) */
+    ::-webkit-scrollbar {
+      width: 10px;
+      height: 10px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background-color: var(--color-borde);
+      border-radius: var(--radio-full);
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+      background-color: var(--color-texto-tenue);
+    }
+
+    a:focus-visible,
+    button:focus-visible,
+    input:focus-visible,
+    select:focus-visible,
+    textarea:focus-visible {
+      outline: 2px solid var(--color-primario);
+      outline-offset: 2px;
+    }
+
+    /* ============================================================
+       ENCABEZADO
+       ============================================================ */
+    header.encabezado-principal {
+      background: linear-gradient(135deg, #12151d 0%, #1a1f2e 55%, #171b26 100%);
+      border-bottom: 1px solid var(--color-borde);
+      box-shadow: 0 1px 0 rgba(126, 245, 66, 0.35), var(--sombra-sm);
+      padding: 22px 28px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 14px;
+      position: relative;
+    }
+
+    header.encabezado-principal::after {
+      content: "";
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: -1px;
+      height: 2px;
+      background: linear-gradient(90deg, var(--color-primario) 0%, rgba(126, 245, 66, 0) 45%, rgba(255, 138, 61, 0) 55%, var(--color-acento) 100%);
+      opacity: 0.9;
+    }
+
+    .logo-marca {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .logo-marca .icono {
+      width: 48px;
+      height: 48px;
+      border-radius: 13px;
+      background: linear-gradient(135deg, var(--color-primario), var(--color-primario-oscuro));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 22px;
+      font-weight: 800;
+      letter-spacing: 0.3px;
+      color: #0b0d12;
+      flex-shrink: 0;
+      box-shadow: 0 6px 18px -4px rgba(126, 245, 66, 0.45);
+    }
+
+    .logo-marca .textos h1 {
+      margin: 0;
+      font-size: 1.55rem;
+      font-weight: 800;
+      letter-spacing: 0.3px;
+    }
+
+    .logo-marca .textos h1 span {
+      color: var(--color-primario);
+    }
+
+    .logo-marca .textos p {
+      margin: 3px 0 0;
+      font-size: 0.85rem;
+      color: var(--color-texto-suave);
+    }
+
+    .badge-version {
+      background-color: var(--color-superficie-clara);
+      border: 1px solid var(--color-borde);
+      color: var(--color-texto-suave);
+      font-size: 0.75rem;
+      font-weight: 600;
+      letter-spacing: 0.2px;
+      padding: 7px 14px;
+      border-radius: var(--radio-full);
+      box-shadow: var(--sombra-sm);
+    }
+
+    /* ============================================================
+       NAVEGACIÓN INTERNA (solo visual, ancla a las secciones)
+       ============================================================ */
+    nav.navegacion-secciones {
+      display: flex;
+      gap: 8px;
+      padding: 12px 28px;
+      background-color: rgba(21, 24, 33, 0.92);
+      backdrop-filter: saturate(140%) blur(6px);
+      -webkit-backdrop-filter: saturate(140%) blur(6px);
+      border-bottom: 1px solid var(--color-borde);
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      flex-wrap: wrap;
+      overflow-x: auto;
+    }
+
+    nav.navegacion-secciones a {
+      color: var(--color-texto-suave);
+      text-decoration: none;
+      font-size: 0.88rem;
+      font-weight: 600;
+      padding: 9px 16px;
+      border-radius: var(--radio-full);
+      background-color: var(--color-superficie-clara);
+      border: 1px solid var(--color-borde);
+      white-space: nowrap;
+      transition: background-color var(--transicion), border-color var(--transicion), color var(--transicion), transform var(--transicion);
+    }
+
+    nav.navegacion-secciones a:hover {
+      border-color: var(--color-primario);
+      color: var(--color-primario);
+      background-color: var(--color-primario-suave);
+      transform: translateY(-1px);
+    }
+
+    nav.navegacion-secciones a:active {
+      transform: translateY(0);
+    }
+
+    /* ============================================================
+       CONTENEDOR GENERAL
+       ============================================================ */
+    main {
+      max-width: 1040px;
+      margin: 0 auto;
+      padding: 36px 24px 70px;
+      display: flex;
+      flex-direction: column;
+      gap: 28px;
+    }
+
+    section.tarjeta {
+      background-color: var(--color-superficie);
+      background-image: linear-gradient(180deg, rgba(255, 255, 255, 0.015), rgba(255, 255, 255, 0));
+      border: 1px solid var(--color-borde);
+      border-radius: var(--radio-lg);
+      box-shadow: var(--sombra);
+      padding: 28px 30px;
+      position: relative;
+      transition: box-shadow var(--transicion-lenta), border-color var(--transicion-lenta);
+    }
+
+    section.tarjeta:hover {
+      border-color: var(--color-borde-suave);
+      box-shadow: var(--sombra-lg);
+    }
+
+    section.tarjeta > .titulo-seccion {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 22px;
+      border-bottom: 1px solid var(--color-borde);
+      padding-bottom: 16px;
+    }
+
+    section.tarjeta > .titulo-seccion h2 {
+      margin: 0;
+      font-size: 1.2rem;
+      font-weight: 700;
+      letter-spacing: 0.2px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    section.tarjeta > .titulo-seccion .nota-seccion {
+      font-size: 0.8rem;
+      color: var(--color-texto-suave);
+    }
+
+    /* ============================================================
+       FORMULARIO "CARGAR PRODUCTO"
+       ============================================================ */
+    form.formulario-producto {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 20px 26px;
+    }
+
+    .campo-formulario {
+      display: flex;
+      flex-direction: column;
+      gap: 7px;
+    }
+
+    .campo-formulario.ancho-completo {
+      grid-column: 1 / -1;
+    }
+
+    .campo-formulario label {
+      font-size: 0.82rem;
+      font-weight: 700;
+      letter-spacing: 0.15px;
+      color: var(--color-texto-suave);
+    }
+
+    .campo-formulario label .requerido {
+      color: var(--color-acento);
+      margin-left: 2px;
+    }
+
+    .campo-formulario input,
+    .campo-formulario select,
+    .campo-formulario textarea {
+      background-color: var(--color-superficie-clara);
+      border: 1px solid var(--color-borde);
+      color: var(--color-texto);
+      padding: 11px 13px;
+      border-radius: var(--radio-sm);
+      font-family: inherit;
+      font-size: 0.95rem;
+      outline: none;
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.02);
+      transition: border-color var(--transicion), box-shadow var(--transicion), background-color var(--transicion);
+    }
+
+    .campo-formulario input::placeholder,
+    .campo-formulario textarea::placeholder {
+      color: var(--color-texto-tenue);
+    }
+
+    .campo-formulario input:hover,
+    .campo-formulario select:hover,
+    .campo-formulario textarea:hover {
+      border-color: var(--color-texto-tenue);
+    }
+
+    .campo-formulario input:focus,
+    .campo-formulario select:focus,
+    .campo-formulario textarea:focus {
+      border-color: var(--color-primario);
+      background-color: var(--color-superficie-hover);
+      box-shadow: 0 0 0 3px var(--color-primario-suave);
+    }
+
+    .campo-formulario input:disabled {
+      opacity: 0.55;
+      cursor: not-allowed;
+    }
+
+    .campo-formulario textarea {
+      resize: vertical;
+      min-height: 84px;
+      line-height: 1.5;
+    }
+
+    .campo-formulario .ayuda-campo {
+      font-size: 0.75rem;
+      color: var(--color-texto-tenue);
+    }
+
+    .grupo-precio {
+      position: relative;
+    }
+
+    .grupo-precio .simbolo-moneda {
+      position: absolute;
+      left: 13px;
+      top: 39px;
+      color: var(--color-texto-suave);
+      font-weight: 600;
+      pointer-events: none;
+    }
+
+    .grupo-precio input {
+      padding-left: 28px;
+    }
+
+    /* Estado del producto: activo / inactivo, mostrado como switch visual */
+    .selector-estado {
+      display: flex;
+      gap: 10px;
+    }
+
+    .selector-estado label {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 11px;
+      border-radius: var(--radio-sm);
+      border: 1px solid var(--color-borde);
+      background-color: var(--color-superficie-clara);
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: var(--color-texto-suave);
+      cursor: pointer;
+      transition: border-color var(--transicion), background-color var(--transicion), color var(--transicion), transform var(--transicion);
+    }
+
+    .selector-estado label:hover {
+      border-color: var(--color-texto-tenue);
+    }
+
+    .selector-estado label:has(input:checked) {
+      border-color: var(--color-primario);
+      color: var(--color-texto);
+      background-color: var(--color-primario-suave);
+      box-shadow: 0 0 0 3px var(--color-primario-suave);
+    }
+
+    .acciones-formulario {
+      grid-column: 1 / -1;
+      display: flex;
+      gap: 12px;
+      justify-content: flex-end;
+      margin-top: 10px;
+      padding-top: 20px;
+      border-top: 1px solid var(--color-borde-suave);
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    /* Mensaje de validación / confirmación del formulario */
+    .mensaje-formulario {
+      margin: 0 auto 0 0;
+      font-size: 0.82rem;
+      font-weight: 700;
+      min-height: 1.2em;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .mensaje-formulario.mensaje-error {
+      color: var(--color-peligro);
+    }
+
+    .mensaje-formulario.mensaje-exito {
+      color: var(--color-primario);
+    }
+
+    button {
+      font-family: inherit;
+      font-size: 0.9rem;
+      font-weight: 700;
+      letter-spacing: 0.15px;
+      padding: 12px 24px;
+      border-radius: var(--radio-sm);
+      border: 1px solid transparent;
+      cursor: pointer;
+      transition: opacity var(--transicion), background-color var(--transicion), border-color var(--transicion), color var(--transicion), transform var(--transicion), box-shadow var(--transicion);
+    }
+
+    button:active {
+      transform: translateY(1px);
+    }
+
+    button.boton-primario {
+      background: linear-gradient(135deg, var(--color-primario), var(--color-primario-oscuro));
+      color: #0b0d12;
+      box-shadow: 0 8px 20px -8px rgba(126, 245, 66, 0.5);
+    }
+
+    button.boton-primario:hover {
+      filter: brightness(1.06);
+      box-shadow: 0 10px 24px -8px rgba(126, 245, 66, 0.6);
+      transform: translateY(-1px);
+    }
+
+    button.boton-secundario {
+      background-color: transparent;
+      border-color: var(--color-borde);
+      color: var(--color-texto-suave);
+    }
+
+    button.boton-secundario:hover {
+      border-color: var(--color-texto-suave);
+      color: var(--color-texto);
+      background-color: var(--color-superficie-clara);
+    }
+
+    /* ============================================================
+       SECCIÓN "PRODUCTOS"
+       ============================================================ */
+    .barra-herramientas-productos {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+    }
+
+    .barra-herramientas-productos input[type="search"] {
+      flex: 1;
+      min-width: 200px;
+      background-color: var(--color-superficie-clara);
+      border: 1px solid var(--color-borde);
+      color: var(--color-texto);
+      padding: 10px 14px;
+      border-radius: var(--radio-sm);
+      font-family: inherit;
+      transition: border-color var(--transicion), box-shadow var(--transicion);
+    }
+
+    .barra-herramientas-productos input[type="search"]:focus {
+      outline: none;
+      border-color: var(--color-primario);
+      box-shadow: 0 0 0 3px var(--color-primario-suave);
+    }
+
+    .estado-vacio {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 54px 20px;
+      color: var(--color-texto-suave);
+      border: 1px dashed var(--color-borde);
+      border-radius: var(--radio-borde);
+      background-color: rgba(255, 255, 255, 0.012);
+    }
+
+    .estado-vacio .icono-vacio {
+      font-size: 2.6rem;
+      margin-bottom: 14px;
+      filter: grayscale(0.15);
+      opacity: 0.9;
+    }
+
+    .estado-vacio p {
+      margin: 4px 0;
+    }
+
+    .estado-vacio p.principal {
+      font-size: 1rem;
+      color: var(--color-texto);
+      font-weight: 700;
+    }
+
+    .estado-vacio p.secundario {
+      font-size: 0.85rem;
+      max-width: 40ch;
+    }
+
+    /* Tabla de productos guardados */
+    .tabla-productos-contenedor {
+      overflow-x: auto;
+      border: 1px solid var(--color-borde);
+      border-radius: var(--radio-borde);
+      box-shadow: var(--sombra-sm);
+    }
+
+    .tabla-productos {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.9rem;
+    }
+
+    .tabla-productos th,
+    .tabla-productos td {
+      text-align: left;
+      padding: 13px 16px;
+      white-space: nowrap;
+    }
+
+    .tabla-productos thead th {
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: var(--color-texto-suave);
+      font-weight: 700;
+      background-color: var(--color-superficie-clara);
+      border-bottom: 1px solid var(--color-borde);
+    }
+
+    .tabla-productos tbody tr:not(:last-child) td {
+      border-bottom: 1px solid var(--color-borde-suave);
+    }
+
+    .tabla-productos tbody tr {
+      transition: background-color var(--transicion);
+    }
+
+    .tabla-productos tbody tr:nth-child(even) {
+      background-color: rgba(255, 255, 255, 0.012);
+    }
+
+    .tabla-productos tbody tr:hover {
+      background-color: var(--color-superficie-hover);
+    }
+
+    .tabla-productos td.valor-alerta {
+      color: var(--color-acento);
+      font-weight: 700;
+      background-image: linear-gradient(0deg, var(--color-acento-suave), var(--color-acento-suave));
+      border-radius: 6px;
+    }
+
+    .boton-editar {
+      font-size: 0.78rem;
+      font-weight: 700;
+      padding: 7px 14px;
+      border-radius: var(--radio-sm);
+      border: 1px solid var(--color-borde);
+      background-color: transparent;
+      color: var(--color-texto-suave);
+      cursor: pointer;
+      transition: border-color var(--transicion), color var(--transicion), background-color var(--transicion);
+    }
+
+    .boton-editar:hover {
+      border-color: var(--color-primario);
+      color: var(--color-primario);
+      background-color: var(--color-primario-suave);
+    }
+
+    .celda-acciones {
+      display: flex;
+      gap: 8px;
+    }
+
+    .boton-eliminar {
+      font-size: 0.78rem;
+      font-weight: 700;
+      padding: 7px 14px;
+      border-radius: var(--radio-sm);
+      border: 1px solid var(--color-borde);
+      background-color: transparent;
+      color: var(--color-texto-suave);
+      cursor: pointer;
+      transition: border-color var(--transicion), color var(--transicion), background-color var(--transicion);
+    }
+
+    .boton-eliminar:hover {
+      border-color: var(--color-peligro);
+      color: var(--color-peligro);
+      background-color: var(--color-peligro-suave);
+    }
+
+    /* ============================================================
+       SECCIÓN "REGISTRAR VENTA"
+       ============================================================ */
+    .campo-cantidad-venta {
+      width: 76px;
+      background-color: var(--color-superficie-clara);
+      border: 1px solid var(--color-borde);
+      color: var(--color-texto);
+      padding: 8px 9px;
+      border-radius: var(--radio-sm);
+      font-family: inherit;
+      font-size: 0.9rem;
+      text-align: center;
+      transition: border-color var(--transicion), box-shadow var(--transicion);
+    }
+
+    .campo-cantidad-venta:focus {
+      border-color: var(--color-primario);
+      outline: none;
+      box-shadow: 0 0 0 3px var(--color-primario-suave);
+    }
+
+    .campo-cantidad-venta:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .celda-subtotal-venta {
+      font-weight: 700;
+      color: var(--color-texto);
+    }
+
+    .resumen-venta {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-top: 22px;
+      padding-top: 18px;
+      border-top: 1px solid var(--color-borde-suave);
+    }
+
+    .resumen-venta .mensaje-formulario {
+      margin: 0;
+    }
+
+    .fila-total-boton {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+
+    .total-venta {
+      font-size: 1.2rem;
+      font-weight: 700;
+    }
+
+    .total-venta span {
+      color: var(--color-primario);
+      margin-left: 4px;
+    }
+
+    /* ============================================================
+       SECCIÓN "REPORTES"
+       ============================================================ */
+    .tarjetas-reportes {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+      gap: 16px;
+      margin-bottom: 26px;
+    }
+
+    .tarjeta-reporte {
+      background-color: var(--color-superficie-clara);
+      background-image: linear-gradient(160deg, rgba(126, 245, 66, 0.05), transparent 60%);
+      border: 1px solid var(--color-borde);
+      border-radius: var(--radio-borde);
+      padding: 20px 22px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      transition: border-color var(--transicion), transform var(--transicion);
+    }
+
+    .tarjeta-reporte:hover {
+      border-color: var(--color-borde-suave);
+      transform: translateY(-2px);
+    }
+
+    .tarjeta-reporte-etiqueta {
+      font-size: 0.76rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: var(--color-texto-suave);
+      font-weight: 700;
+    }
+
+    .tarjeta-reporte-valor {
+      font-size: 1.7rem;
+      font-weight: 800;
+      letter-spacing: 0.2px;
+      color: var(--color-primario);
+    }
+
+    .subtitulo-reportes {
+      margin: 0 0 14px;
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--color-texto);
+    }
+
+    /* ============================================================
+       SECCIÓN "RESPALDO DE DATOS"
+       ============================================================ */
+    .acciones-respaldo {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-bottom: 14px;
+    }
+
+    #mensaje-respaldo {
+      margin: 0;
+    }
+
+    /* ============================================================
+       PIE DE PÁGINA
+       ============================================================ */
+    footer {
+      text-align: center;
+      padding: 26px 20px;
+      font-size: 0.78rem;
+      color: var(--color-texto-tenue);
+      border-top: 1px solid var(--color-borde);
+    }
+
+    /* ============================================================
+       RESPONSIVE
+       ============================================================ */
+    @media (max-width: 900px) {
+      main {
+        padding: 28px 18px 60px;
+        gap: 22px;
+      }
+
+      section.tarjeta {
+        padding: 22px 20px;
+      }
+    }
+
+    @media (max-width: 640px) {
+      header.encabezado-principal {
+        padding: 18px 18px;
+      }
+
+      nav.navegacion-secciones {
+        padding: 10px 14px;
+        gap: 6px;
+      }
+
+      form.formulario-producto {
+        grid-template-columns: 1fr;
+      }
+
+      .acciones-formulario {
+        justify-content: stretch;
+      }
+
+      .acciones-formulario .mensaje-formulario {
+        margin-right: 0;
+        order: 3;
+        text-align: center;
+        width: 100%;
+        justify-content: center;
+      }
+
+      button {
+        flex: 1;
+      }
+
+      .tarjeta-reporte-valor {
+        font-size: 1.4rem;
+      }
+    }
+
+    @media (max-width: 420px) {
+      .logo-marca .textos h1 {
+        font-size: 1.3rem;
+      }
+
+      section.tarjeta {
+        padding: 18px 16px;
+      }
+
+      .selector-estado {
+        flex-direction: column;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *,
+      *::before,
+      *::after {
+        transition-duration: 0.001ms !important;
+        animation-duration: 0.001ms !important;
+        scroll-behavior: auto !important;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ================================================================
+       ENCABEZADO: nombre del sistema y descripción breve
+       ================================================================ -->
+  <header class="encabezado-principal">
+    <div class="logo-marca">
+      <div class="icono">PF</div>
+      <div class="textos">
+        <h1>Power<span>Fit</span> Store</h1>
+        <p>Sistema de ventas y gestión de productos</p>
+      </div>
+    </div>
+    <span class="badge-version">Esqueleto inicial · v0.1</span>
+  </header>
+
+  <!-- Navegación simple por anclas hacia las secciones de la página -->
+  <nav class="navegacion-secciones">
+    <a href="#seccion-cargar-producto">➕ Cargar producto</a>
+    <a href="#seccion-productos">📦 Productos</a>
+    <a href="#seccion-registrar-venta">🧾 Registrar venta</a>
+    <a href="#seccion-reportes">📊 Reportes</a>
+    <a href="#seccion-respaldo">💾 Respaldo</a>
+  </nav>
+
+  <main>
+
+    <!-- ================================================================
+         SECCIÓN 1: CARGAR PRODUCTO
+         Formulario visual con todos los campos del producto.
+         Sin funcionalidad todavía: los botones no envían ni guardan datos.
+         ================================================================ -->
+    <section class="tarjeta" id="seccion-cargar-producto">
+      <div class="titulo-seccion">
+        <h2>➕ Cargar producto</h2>
+        <span class="nota-seccion" id="nota-formulario">Los productos se guardan en este navegador (localStorage)</span>
+      </div>
+
+      <form class="formulario-producto">
+
+        <!-- ID: identificador único del producto -->
+        <div class="campo-formulario">
+          <label for="campo-id">ID del producto</label>
+          <input type="text" id="campo-id" name="id" placeholder="Se generará automáticamente" disabled>
+          <span class="ayuda-campo">Identificador único. Se completará solo más adelante.</span>
+        </div>
+
+        <!-- Nombre del producto -->
+        <div class="campo-formulario">
+          <label for="campo-nombre">Nombre<span class="requerido">*</span></label>
+          <input type="text" id="campo-nombre" name="nombre" placeholder="Ej: Proteína Whey 1kg">
+        </div>
+
+        <!-- Categoría: tipo de producto -->
+        <div class="campo-formulario">
+          <label for="campo-categoria">Categoría</label>
+          <select id="campo-categoria" name="categoria">
+            <option value="" selected>Seleccionar categoría...</option>
+            <option value="proteinas">Proteínas</option>
+            <option value="creatina">Creatina</option>
+            <option value="vitaminas">Vitaminas</option>
+            <option value="pre-entreno">Pre-entreno</option>
+            <option value="otros">Otros</option>
+          </select>
+        </div>
+
+        <!-- Marca del producto -->
+        <div class="campo-formulario">
+          <label for="campo-marca">Marca</label>
+          <input type="text" id="campo-marca" name="marca" placeholder="Ej: Nutrisport">
+        </div>
+
+        <!-- Estado: activo / inactivo -->
+        <div class="campo-formulario">
+          <label>Estado</label>
+          <div class="selector-estado">
+            <label><input type="radio" name="estado" value="activo" checked> Activo</label>
+            <label><input type="radio" name="estado" value="inactivo"> Inactivo</label>
+          </div>
+        </div>
+
+        <!-- Precio de venta en euros -->
+        <div class="campo-formulario grupo-precio">
+          <label for="campo-precio">Precio de venta<span class="requerido">*</span></label>
+          <span class="simbolo-moneda">€</span>
+          <input type="text" inputmode="decimal" id="campo-precio" name="precio" placeholder="0.00" autocomplete="off">
+        </div>
+
+        <!-- Stock disponible -->
+        <div class="campo-formulario">
+          <label for="campo-stock">Stock disponible</label>
+          <input type="number" id="campo-stock" name="stock" placeholder="0" min="0">
+        </div>
+
+        <!-- Stock mínimo deseado, para alertas de stock bajo -->
+        <div class="campo-formulario">
+          <label for="campo-stock-minimo">Stock mínimo</label>
+          <input type="number" id="campo-stock-minimo" name="stockMinimo" placeholder="0" min="0">
+          <span class="ayuda-campo">Debajo de este valor se avisará que el stock es bajo.</span>
+        </div>
+
+        <!-- Descripción breve del producto -->
+        <div class="campo-formulario ancho-completo">
+          <label for="campo-descripcion">Descripción</label>
+          <textarea id="campo-descripcion" name="descripcion" placeholder="Breve descripción del producto..."></textarea>
+        </div>
+
+        <!-- Acciones del formulario -->
+        <div class="acciones-formulario">
+          <p class="mensaje-formulario" id="mensaje-formulario" role="alert" aria-live="polite"></p>
+          <button type="button" class="boton-secundario" id="boton-cancelar">Cancelar</button>
+          <button type="button" class="boton-primario" id="boton-guardar">Guardar producto</button>
+        </div>
+      </form>
+    </section>
+
+    <!-- ================================================================
+         SECCIÓN 2: PRODUCTOS
+         Listado de productos cargados. Por ahora siempre vacío.
+         ================================================================ -->
+    <section class="tarjeta" id="seccion-productos">
+      <div class="titulo-seccion">
+        <h2>📦 Productos</h2>
+        <span class="nota-seccion" id="contador-productos">Listado de productos guardados</span>
+      </div>
+
+      <!-- Barra de herramientas (búsqueda y filtro): se implementará en una próxima etapa -->
+      <div class="barra-herramientas-productos">
+        <input type="search" placeholder="Buscar producto por nombre, marca o categoría... (próximamente)" disabled>
+      </div>
+
+      <!-- Contenedor dinámico: JS decide si mostrar el estado vacío o el listado de productos -->
+      <div class="estado-vacio" id="lista-productos">
+        <div class="icono-vacio">🗂️</div>
+        <p class="principal">Todavía no hay productos cargados</p>
+        <p class="secundario">Cargá tu primer producto desde el formulario de arriba.</p>
+      </div>
+    </section>
+
+    <!-- ================================================================
+         SECCIÓN 3: REGISTRAR VENTA
+         Permite seleccionar productos y cantidades, calcula el total
+         en tiempo real y, al confirmar, descuenta el stock vendido y
+         guarda la venta en el historial de localStorage ("ventas").
+         ================================================================ -->
+    <section class="tarjeta" id="seccion-registrar-venta">
+      <div class="titulo-seccion">
+        <h2>🧾 Registrar venta</h2>
+        <span class="nota-seccion" id="nota-venta">Indicá una cantidad para cada producto que quieras vender</span>
+      </div>
+
+      <!-- Contenedor dinámico: JS decide si mostrar el estado vacío o la tabla de venta -->
+      <div id="contenedor-venta">
+        <div class="estado-vacio">
+          <div class="icono-vacio">🧾</div>
+          <p class="principal">Todavía no hay productos cargados</p>
+          <p class="secundario">Cargá productos en la sección de arriba para poder registrar una venta.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================================================================
+         SECCIÓN 4: REPORTES
+         Información calculada exclusivamente a partir de las ventas
+         guardadas en localStorage bajo la clave "ventas": total
+         facturado, cantidad de ventas y el top 3 de productos más
+         vendidos. No se agregan datos ficticios ni ventas manuales.
+         ================================================================ -->
+    <section class="tarjeta" id="seccion-reportes">
+      <div class="titulo-seccion">
+        <h2>📊 Reportes</h2>
+        <span class="nota-seccion">Calculados a partir de las ventas registradas</span>
+      </div>
+
+      <!-- Contenedor dinámico: JS calcula y dibuja las tarjetas y el ranking a partir de "ventas" -->
+      <div id="contenedor-reportes">
+        <div class="tarjetas-reportes">
+          <div class="tarjeta-reporte">
+            <span class="tarjeta-reporte-etiqueta">Total facturado</span>
+            <span class="tarjeta-reporte-valor">€ 0,00</span>
+          </div>
+          <div class="tarjeta-reporte">
+            <span class="tarjeta-reporte-etiqueta">Cantidad de ventas</span>
+            <span class="tarjeta-reporte-valor">0</span>
+          </div>
+        </div>
+        <div class="estado-vacio">
+          <div class="icono-vacio">📊</div>
+          <p class="principal">Todavía no hay productos vendidos</p>
+          <p class="secundario">Registrá una venta para empezar a ver reportes acá.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================================================================
+         SECCIÓN 5: RESPALDO DE DATOS
+         Permite exportar todos los productos y ventas a un archivo
+         .json, y restaurarlos luego importando ese mismo archivo.
+         Todo ocurre en el navegador: no se sube nada a ningún servidor.
+         ================================================================ -->
+    <section class="tarjeta" id="seccion-respaldo">
+      <div class="titulo-seccion">
+        <h2>💾 Respaldo de datos</h2>
+        <span class="nota-seccion">Exportá un archivo .json con tus productos y ventas, o restaurá uno anterior</span>
+      </div>
+
+      <div class="acciones-respaldo">
+        <button type="button" class="boton-primario" id="boton-exportar-datos">Exportar datos</button>
+        <button type="button" class="boton-secundario" id="boton-importar-datos">Importar datos</button>
+        <!-- Input de archivo oculto: se activa mediante el botón "Importar datos" -->
+        <input type="file" id="campo-importar-archivo" accept="application/json,.json" hidden>
+      </div>
+
+      <p class="mensaje-formulario" id="mensaje-respaldo" role="alert" aria-live="polite"></p>
+    </section>
+
+  </main>
+
+  <footer>
+    PowerFit Store &mdash; Sistema de ventas 100% local. Sin servidor, sin base de datos.
+  </footer>
+
+  <script>
+    /* ============================================================
+       JAVASCRIPT
+       ============================================================
+       Funcionalidad implementada en esta etapa:
+         - Cargar un producto desde el formulario y guardarlo en
+           localStorage (persiste al cerrar y volver a abrir el navegador).
+         - Validar que el nombre no esté vacío.
+         - Validar que el precio no esté vacío y sea un número válido.
+         - Mostrar en la sección "Productos" los productos guardados,
+           incluyendo los que ya existían al abrir la página.
+         - Editar un producto existente: el botón "Editar" de cada fila
+           precarga el formulario y, al guardar, actualiza ese mismo
+           producto en localStorage por su ID (sin crear uno nuevo).
+         - Eliminar un producto existente: el botón "Eliminar" de cada
+           fila pide confirmación con el nombre del producto y, si se
+           confirma, lo borra de localStorage por su ID.
+         - Registrar una venta: en la sección "Registrar venta" se
+           indica una cantidad por producto, el total se calcula en
+           tiempo real y, al confirmar, se descuenta el stock vendido
+           y la venta se guarda en un historial separado en
+           localStorage bajo la clave "ventas" (sin pisar las ventas
+           anteriores).
+         - Reportes: en la sección "Reportes" se calcula, a partir
+           exclusivamente de las ventas guardadas, el total facturado,
+           la cantidad de ventas registradas y el top 3 de productos
+           más vendidos. Se actualiza solo después de cada venta y al
+           abrir la página; no agrega ventas ni datos ficticios.
+         - Respaldo de datos: el botón "Exportar datos" descarga un
+           archivo .json con todos los productos y ventas guardados en
+           localStorage en ese momento. El botón "Importar datos" deja
+           elegir un archivo .json previamente exportado; si el archivo
+           es válido, pide confirmación y, recién si se confirma,
+           reemplaza los productos y las ventas actuales por los del
+           archivo y actualiza el listado, la venta y los reportes. Si
+           el archivo no es JSON válido o no tiene la estructura
+           esperada, muestra un error y no modifica ningún dato.
+       Todavía NO se implementan: búsqueda, gestión de stock avanzada,
+       filtros por fecha, gráficos ni login. Eso queda para próximas
+       etapas.
+       ============================================================ */
+    (function () {
+      'use strict';
+
+      // Clave usada para guardar el listado de productos en localStorage
+      var CLAVE_ALMACENAMIENTO = 'powerfitStoreProductos';
+
+      // Clave usada para guardar el historial de ventas en localStorage (separado de los productos)
+      var CLAVE_VENTAS = 'ventas';
+
+      // --- Referencias a elementos del DOM ---
+      var formulario = document.querySelector('.formulario-producto');
+      var campoId = document.getElementById('campo-id');
+      var campoNombre = document.getElementById('campo-nombre');
+      var campoCategoria = document.getElementById('campo-categoria');
+      var campoMarca = document.getElementById('campo-marca');
+      var campoPrecio = document.getElementById('campo-precio');
+      var campoStock = document.getElementById('campo-stock');
+      var campoStockMinimo = document.getElementById('campo-stock-minimo');
+      var campoDescripcion = document.getElementById('campo-descripcion');
+      var botonGuardar = document.getElementById('boton-guardar');
+      var botonCancelar = document.getElementById('boton-cancelar');
+      var mensajeFormulario = document.getElementById('mensaje-formulario');
+      var contenedorProductos = document.getElementById('lista-productos');
+      var contadorProductos = document.getElementById('contador-productos');
+      var notaFormulario = document.getElementById('nota-formulario');
+      var contenedorVenta = document.getElementById('contenedor-venta');
+      var contenedorReportes = document.getElementById('contenedor-reportes');
+      var botonExportarDatos = document.getElementById('boton-exportar-datos');
+      var botonImportarDatos = document.getElementById('boton-importar-datos');
+      var campoImportarArchivo = document.getElementById('campo-importar-archivo');
+      var mensajeRespaldo = document.getElementById('mensaje-respaldo');
+
+      // Referencias dentro de la sección "Registrar venta": se reasignan cada vez
+      // que se vuelve a dibujar la tabla, porque sus elementos se recrean.
+      var cuerpoTablaVenta = null;
+      var totalVentaSpan = null;
+      var mensajeVenta = null;
+      var botonConfirmarVenta = null;
+
+      // Texto original de la nota del formulario, para restaurarlo al salir del modo edición
+      var TEXTO_NOTA_FORMULARIO_NORMAL = notaFormulario ? notaFormulario.textContent : '';
+
+      // ID del producto que se está editando actualmente, o null si se está cargando uno nuevo
+      var idEnEdicion = null;
+
+      // Nombres legibles para cada valor de categoría
+      var NOMBRES_CATEGORIA = {
+        proteinas: 'Proteínas',
+        creatina: 'Creatina',
+        vitaminas: 'Vitaminas',
+        'pre-entreno': 'Pre-entreno',
+        otros: 'Otros'
+      };
+
+      /**
+       * Lee el listado de productos guardado en localStorage.
+       * Si no hay nada guardado, o el contenido está corrupto,
+       * devuelve un array vacío en lugar de romper la aplicación.
+       */
+      function obtenerProductosGuardados() {
+        try {
+          var datosGuardados = localStorage.getItem(CLAVE_ALMACENAMIENTO);
+          var productos = datosGuardados ? JSON.parse(datosGuardados) : [];
+          return Array.isArray(productos) ? productos : [];
+        } catch (error) {
+          console.error('No se pudieron leer los productos de localStorage:', error);
+          return [];
+        }
+      }
+
+      /**
+       * Guarda el listado completo de productos en localStorage.
+       * Devuelve true si se guardó correctamente, false si falló
+       * (por ejemplo, si el navegador bloquea localStorage).
+       */
+      function guardarProductosEnStorage(productos) {
+        try {
+          localStorage.setItem(CLAVE_ALMACENAMIENTO, JSON.stringify(productos));
+          return true;
+        } catch (error) {
+          console.error('No se pudieron guardar los productos en localStorage:', error);
+          return false;
+        }
+      }
+
+      /**
+       * Lee el historial de ventas guardado en localStorage, bajo la
+       * clave "ventas" (separada de los productos). Si todavía no existe,
+       * o el contenido está corrupto, devuelve un array vacío.
+       */
+      function obtenerVentasGuardadas() {
+        try {
+          var datosGuardados = localStorage.getItem(CLAVE_VENTAS);
+          var ventas = datosGuardados ? JSON.parse(datosGuardados) : [];
+          return Array.isArray(ventas) ? ventas : [];
+        } catch (error) {
+          console.error('No se pudieron leer las ventas de localStorage:', error);
+          return [];
+        }
+      }
+
+      /** Guarda el historial completo de ventas en localStorage, bajo la clave "ventas". */
+      function guardarVentasEnStorage(ventas) {
+        try {
+          localStorage.setItem(CLAVE_VENTAS, JSON.stringify(ventas));
+          return true;
+        } catch (error) {
+          console.error('No se pudieron guardar las ventas en localStorage:', error);
+          return false;
+        }
+      }
+
+      /**
+       * Agrega una venta nueva al historial existente en "ventas", sin
+       * sobrescribir las ventas anteriores (si la clave no existe todavía,
+       * se inicializa como un array vacío antes de agregar la primera).
+       */
+      function agregarVentaAlHistorial(venta) {
+        var ventas = obtenerVentasGuardadas();
+        ventas.push(venta);
+        return guardarVentasEnStorage(ventas);
+      }
+
+      /**
+       * Recorre todas las ventas guardadas y suma, por producto, las
+       * unidades vendidas (usando el ID del producto capturado en cada
+       * venta), devolviendo los 3 productos con más unidades vendidas,
+       * ordenados de mayor a menor.
+       */
+      function calcularTopProductos(ventas) {
+        var unidadesPorProducto = {};
+
+        ventas.forEach(function (venta) {
+          var itemsVenta = Array.isArray(venta && venta.productos) ? venta.productos : [];
+
+          itemsVenta.forEach(function (item) {
+            var idProducto = item && item.id !== undefined && item.id !== null ? item.id : null;
+            var nombreProducto = (item && item.nombre) || 'Producto desconocido';
+            var clave = idProducto !== null ? 'id-' + idProducto : 'nombre-' + nombreProducto;
+            var cantidadVendida = Number(item && item.cantidad) || 0;
+
+            if (!unidadesPorProducto[clave]) {
+              unidadesPorProducto[clave] = { id: idProducto, nombre: nombreProducto, unidades: 0 };
+            }
+
+            unidadesPorProducto[clave].unidades += cantidadVendida;
+            unidadesPorProducto[clave].nombre = nombreProducto; // usa el nombre más reciente registrado en una venta
+          });
+        });
+
+        var listaProductos = Object.keys(unidadesPorProducto).map(function (clave) {
+          return unidadesPorProducto[clave];
+        });
+
+        listaProductos.sort(function (productoA, productoB) {
+          return productoB.unidades - productoA.unidades;
+        });
+
+        return listaProductos.slice(0, 3);
+      }
+
+      /**
+       * Calcula los datos de la sección "Reportes" exclusivamente a
+       * partir de las ventas guardadas en localStorage bajo "ventas":
+       * el total facturado, la cantidad de ventas registradas y el
+       * top 3 de productos más vendidos.
+       */
+      function calcularReportes() {
+        var ventas = obtenerVentasGuardadas();
+
+        var totalFacturado = ventas.reduce(function (acumulado, venta) {
+          return acumulado + (Number(venta && venta.total) || 0);
+        }, 0);
+
+        return {
+          totalFacturado: totalFacturado,
+          cantidadVentas: ventas.length,
+          topProductos: calcularTopProductos(ventas)
+        };
+      }
+
+      /**
+       * Vuelve a dibujar la sección "Reportes" a partir de las ventas
+       * guardadas: si no hay ninguna, muestra el total en €0, la
+       * cantidad de ventas en 0 y un mensaje indicando que todavía no
+       * hay productos vendidos. Si hay ventas, muestra las tarjetas de
+       * total facturado y cantidad de ventas, y la tabla con el top 3
+       * de productos más vendidos.
+       */
+      function renderizarReportes() {
+        if (!contenedorReportes) {
+          return;
+        }
+
+        var datos = calcularReportes();
+
+        var tarjetasHTML =
+          '<div class="tarjetas-reportes">' +
+            '<div class="tarjeta-reporte">' +
+              '<span class="tarjeta-reporte-etiqueta">Total facturado</span>' +
+              '<span class="tarjeta-reporte-valor">' + formatearMoneda(datos.totalFacturado) + '</span>' +
+            '</div>' +
+            '<div class="tarjeta-reporte">' +
+              '<span class="tarjeta-reporte-etiqueta">Cantidad de ventas</span>' +
+              '<span class="tarjeta-reporte-valor">' + datos.cantidadVentas + '</span>' +
+            '</div>' +
+          '</div>';
+
+        if (datos.cantidadVentas === 0) {
+          contenedorReportes.innerHTML =
+            tarjetasHTML +
+            '<div class="estado-vacio">' +
+              '<div class="icono-vacio">📊</div>' +
+              '<p class="principal">Todavía no hay productos vendidos</p>' +
+              '<p class="secundario">Registrá una venta para empezar a ver reportes acá.</p>' +
+            '</div>';
+          return;
+        }
+
+        var filasTopHTML = datos.topProductos.map(function (producto, indice) {
+          return (
+            '<tr>' +
+              '<td>' + (indice + 1) + 'º</td>' +
+              '<td>' + escaparHTML(producto.nombre) + '</td>' +
+              '<td>' + producto.unidades + '</td>' +
+            '</tr>'
+          );
+        }).join('');
+
+        contenedorReportes.innerHTML =
+          tarjetasHTML +
+          '<h3 class="subtitulo-reportes">Top 3 productos más vendidos</h3>' +
+          '<div class="tabla-productos-contenedor">' +
+            '<table class="tabla-productos">' +
+              '<thead><tr><th>Posición</th><th>Producto</th><th>Unidades vendidas</th></tr></thead>' +
+              '<tbody>' + filasTopHTML + '</tbody>' +
+            '</table>' +
+          '</div>';
+      }
+
+      /** Muestra un mensaje de error o de éxito en la sección "Respaldo de datos". */
+      function mostrarMensajeRespaldo(texto, tipo) {
+        if (!mensajeRespaldo) {
+          return;
+        }
+        mensajeRespaldo.textContent = texto;
+        mensajeRespaldo.className = 'mensaje-formulario ' + (tipo === 'exito' ? 'mensaje-exito' : 'mensaje-error');
+      }
+
+      /** Limpia el mensaje de error/éxito de la sección "Respaldo de datos". */
+      function ocultarMensajeRespaldo() {
+        if (!mensajeRespaldo) {
+          return;
+        }
+        mensajeRespaldo.textContent = '';
+        mensajeRespaldo.className = 'mensaje-formulario';
+      }
+
+      /** Devuelve un número como texto de al menos dos dígitos (agrega un cero adelante si hace falta). */
+      function dosDigitos(numero) {
+        return numero < 10 ? '0' + numero : String(numero);
+      }
+
+      /** Arma un texto tipo AAAAMMDD-HHMMSS a partir de una fecha, para usar en el nombre del archivo exportado. */
+      function formatearFechaParaArchivo(fecha) {
+        return (
+          fecha.getFullYear() +
+          dosDigitos(fecha.getMonth() + 1) +
+          dosDigitos(fecha.getDate()) +
+          '-' +
+          dosDigitos(fecha.getHours()) +
+          dosDigitos(fecha.getMinutes()) +
+          dosDigitos(fecha.getSeconds())
+        );
+      }
+
+      /**
+       * Exporta un respaldo de los datos actuales: lee los productos y las
+       * ventas directamente de localStorage en el momento del clic, arma
+       * un archivo .json con esa información y dispara su descarga en el
+       * equipo del usuario. No modifica ningún dato existente.
+       */
+      function manejarExportarDatos() {
+        try {
+          var productos = obtenerProductosGuardados();
+          var ventas = obtenerVentasGuardadas();
+
+          var datosRespaldo = {
+            sistema: 'PowerFit Store',
+            version: 1,
+            fechaExportacion: new Date().toISOString(),
+            productos: productos,
+            ventas: ventas
+          };
+
+          var contenidoJSON = JSON.stringify(datosRespaldo, null, 2);
+          var blob = new Blob([contenidoJSON], { type: 'application/json' });
+          var url = URL.createObjectURL(blob);
+
+          var enlaceDescarga = document.createElement('a');
+          enlaceDescarga.href = url;
+          enlaceDescarga.download = 'powerfit-store-respaldo-' + formatearFechaParaArchivo(new Date()) + '.json';
+          document.body.appendChild(enlaceDescarga);
+          enlaceDescarga.click();
+          document.body.removeChild(enlaceDescarga);
+
+          setTimeout(function () {
+            URL.revokeObjectURL(url);
+          }, 1000);
+
+          mostrarMensajeRespaldo(
+            'Se exportaron ' + productos.length + ' producto(s) y ' + ventas.length + ' venta(s) correctamente.',
+            'exito'
+          );
+        } catch (error) {
+          console.error('No se pudo exportar el respaldo:', error);
+          mostrarMensajeRespaldo('Ocurrió un error al exportar los datos. Intentá nuevamente.', 'error');
+        }
+      }
+
+      /** Al tocar "Importar datos", limpia la selección previa y abre el selector de archivos oculto. */
+      function manejarClickImportarDatos() {
+        if (!campoImportarArchivo) {
+          return;
+        }
+        campoImportarArchivo.value = '';
+        campoImportarArchivo.click();
+      }
+
+      /**
+       * Se dispara cuando el usuario elige un archivo en el selector oculto.
+       * Lee el archivo como texto con FileReader y, cuando termina de leerlo,
+       * lo pasa a procesarArchivoImportado para validarlo e importarlo.
+       */
+      function manejarArchivoSeleccionado(evento) {
+        var archivo = evento.target.files && evento.target.files[0];
+        if (!archivo) {
+          return;
+        }
+
+        var lector = new FileReader();
+        lector.onload = function (eventoLectura) {
+          procesarArchivoImportado(String((eventoLectura.target && eventoLectura.target.result) || ''));
+        };
+        lector.onerror = function () {
+          mostrarMensajeRespaldo('No se pudo leer el archivo seleccionado. Probá con otro archivo.', 'error');
+        };
+        lector.readAsText(archivo);
+      }
+
+      /**
+       * Valida e importa el contenido de un archivo de respaldo:
+       * - Si el texto no es JSON válido, o no tiene la estructura esperada
+       *   (productos y ventas como arrays), muestra un error y NO toca los
+       *   datos actuales.
+       * - Si la estructura es válida, pide confirmación antes de reemplazar
+       *   los datos actuales. Si el usuario cancela, no modifica nada.
+       * - Si el usuario confirma, guarda los productos y las ventas
+       *   importados en sus respectivas claves de localStorage y actualiza
+       *   de inmediato el listado de productos, la sección de venta y los
+       *   reportes.
+       */
+      function procesarArchivoImportado(textoArchivo) {
+        var datosImportados;
+        try {
+          datosImportados = JSON.parse(textoArchivo);
+        } catch (error) {
+          mostrarMensajeRespaldo('El archivo seleccionado no es un JSON válido. No se modificó ningún dato.', 'error');
+          return;
+        }
+
+        var productosImportados = datosImportados && datosImportados.productos;
+        var ventasImportadas = datosImportados && datosImportados.ventas;
+
+        if (
+          !datosImportados ||
+          typeof datosImportados !== 'object' ||
+          !Array.isArray(productosImportados) ||
+          !Array.isArray(ventasImportadas)
+        ) {
+          mostrarMensajeRespaldo(
+            'El archivo no tiene la estructura esperada (productos y ventas). No se modificó ningún dato.',
+            'error'
+          );
+          return;
+        }
+
+        var confirmacion = window.confirm(
+          'Esto va a reemplazar TODOS los productos y ventas actuales por los del archivo seleccionado. ¿Querés continuar?'
+        );
+        if (!confirmacion) {
+          mostrarMensajeRespaldo('Importación cancelada. No se modificó ningún dato.', 'error');
+          return;
+        }
+
+        var productosGuardadosOk = guardarProductosEnStorage(productosImportados);
+        var ventasGuardadasOk = guardarVentasEnStorage(ventasImportadas);
+
+        if (!productosGuardadosOk || !ventasGuardadasOk) {
+          mostrarMensajeRespaldo('Ocurrió un error al guardar los datos importados en este navegador.', 'error');
+          return;
+        }
+
+        salirDeModoEdicion();
+        limpiarFormulario();
+        ocultarMensaje();
+        actualizarVistas(productosImportados);
+        renderizarReportes();
+
+        mostrarMensajeRespaldo(
+          'Se importaron ' + productosImportados.length + ' producto(s) y ' + ventasImportadas.length + ' venta(s) correctamente.',
+          'exito'
+        );
+      }
+
+      /**
+       * Genera un nuevo ID único para un producto, basado en el
+       * ID más alto ya existente.
+       */
+      function generarNuevoId(productos) {
+        var idMaximo = productos.reduce(function (maximoActual, producto) {
+          var idNumerico = Number(producto && producto.id) || 0;
+          return idNumerico > maximoActual ? idNumerico : maximoActual;
+        }, 0);
+        return idMaximo + 1;
+      }
+
+      /** Escapa texto antes de insertarlo como HTML, para evitar romper el markup. */
+      function escaparHTML(texto) {
+        var contenedorTemporal = document.createElement('div');
+        contenedorTemporal.textContent = texto === undefined || texto === null ? '' : String(texto);
+        return contenedorTemporal.innerHTML;
+      }
+
+      /** Muestra un mensaje de error o de éxito debajo del formulario. */
+      function mostrarMensaje(texto, tipo) {
+        mensajeFormulario.textContent = texto;
+        mensajeFormulario.className = 'mensaje-formulario ' + (tipo === 'exito' ? 'mensaje-exito' : 'mensaje-error');
+      }
+
+      /** Limpia el mensaje de error/éxito del formulario. */
+      function ocultarMensaje() {
+        mensajeFormulario.textContent = '';
+        mensajeFormulario.className = 'mensaje-formulario';
+      }
+
+      /** Deja el formulario listo para cargar un nuevo producto. */
+      function limpiarFormulario() {
+        formulario.reset();
+        campoId.value = '';
+        campoNombre.focus();
+      }
+
+      /** Activa el modo edición: cambia los textos del formulario para dejar claro qué se está editando. */
+      function activarModoEdicion(idProducto) {
+        idEnEdicion = idProducto;
+        botonGuardar.textContent = 'Guardar cambios';
+        if (notaFormulario) {
+          notaFormulario.textContent = 'Editando el producto #' + idProducto + '. Los cambios se guardarán sobre el mismo producto.';
+        }
+      }
+
+      /** Sale del modo edición y deja el formulario listo para cargar un producto nuevo. */
+      function salirDeModoEdicion() {
+        idEnEdicion = null;
+        botonGuardar.textContent = 'Guardar producto';
+        if (notaFormulario) {
+          notaFormulario.textContent = TEXTO_NOTA_FORMULARIO_NORMAL;
+        }
+      }
+
+      /**
+       * Precarga el formulario con los datos de un producto existente
+       * y activa el modo edición, identificando al producto por su ID.
+       */
+      function cargarProductoEnFormulario(producto) {
+        campoId.value = producto.id;
+        campoNombre.value = producto.nombre || '';
+        campoCategoria.value = producto.categoria || '';
+        campoMarca.value = producto.marca || '';
+        campoPrecio.value = producto.precio !== undefined && producto.precio !== null ? String(producto.precio) : '';
+        campoStock.value = producto.stock !== undefined && producto.stock !== null ? String(producto.stock) : '';
+        campoStockMinimo.value = producto.stockMinimo !== undefined && producto.stockMinimo !== null ? String(producto.stockMinimo) : '';
+        campoDescripcion.value = producto.descripcion || '';
+
+        var valorEstado = producto.estado === 'inactivo' ? 'inactivo' : 'activo';
+        var radioEstado = formulario.querySelector('input[name="estado"][value="' + valorEstado + '"]');
+        if (radioEstado) {
+          radioEstado.checked = true;
+        }
+
+        activarModoEdicion(producto.id);
+        ocultarMensaje();
+        campoNombre.focus();
+        formulario.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+
+      /**
+       * Construye el HTML de una fila de la tabla de productos
+       * (columnas: Nombre, Categoría, Precio, Stock) a partir de
+       * los datos guardados.
+       */
+      function crearFilaProductoHTML(producto) {
+        var precioNumero = Number(producto.precio) || 0;
+        var precioFormateado = precioNumero.toLocaleString('es-ES', {
+          minimumFractionDigits: 2,
+          maximumFractionDigits: 2
+        });
+        var stockNumero = Number(producto.stock) || 0;
+        var stockMinimoNumero = Number(producto.stockMinimo) || 0;
+        var stockEsBajo = stockMinimoNumero > 0 && stockNumero <= stockMinimoNumero;
+        var nombreCategoria = NOMBRES_CATEGORIA[producto.categoria] || 'Sin categoría';
+
+        return (
+          '<tr>' +
+            '<td>' + escaparHTML(producto.nombre) + '</td>' +
+            '<td>' + escaparHTML(nombreCategoria) + '</td>' +
+            '<td>€ ' + escaparHTML(precioFormateado) + '</td>' +
+            '<td' + (stockEsBajo ? ' class="valor-alerta"' : '') + '>' + stockNumero + '</td>' +
+            '<td><div class="celda-acciones">' +
+              '<button type="button" class="boton-editar" data-id="' + escaparHTML(producto.id) + '">Editar</button>' +
+              '<button type="button" class="boton-eliminar" data-id="' + escaparHTML(producto.id) + '">Eliminar</button>' +
+            '</div></td>' +
+          '</tr>'
+        );
+      }
+
+      /**
+       * Vuelve a dibujar la sección "Productos" a partir del listado
+       * recibido: muestra el estado vacío si no hay productos, o la
+       * tabla con todos los productos guardados si hay al menos uno.
+       * Se llama tanto al abrir la página como después de guardar un
+       * producto nuevo, para que el listado quede siempre actualizado
+       * sin necesidad de recargar.
+       */
+      function renderizarProductos(productos) {
+        if (!productos || productos.length === 0) {
+          contenedorProductos.className = 'estado-vacio';
+          contenedorProductos.innerHTML =
+            '<div class="icono-vacio">🗂️</div>' +
+            '<p class="principal">Todavía no hay productos cargados</p>' +
+            '<p class="secundario">Cargá tu primer producto desde el formulario de arriba.</p>';
+          contadorProductos.textContent = 'Listado de productos guardados';
+          return;
+        }
+
+        contenedorProductos.className = 'tabla-productos-contenedor';
+        contenedorProductos.innerHTML =
+          '<table class="tabla-productos">' +
+            '<thead><tr><th>Nombre</th><th>Categoría</th><th>Precio</th><th>Stock</th><th>Acciones</th></tr></thead>' +
+            '<tbody>' + productos.map(crearFilaProductoHTML).join('') + '</tbody>' +
+          '</table>';
+        contadorProductos.textContent = productos.length === 1
+          ? '1 producto guardado'
+          : productos.length + ' productos guardados';
+      }
+
+      /**
+       * Vuelve a dibujar la sección "Productos" y la sección
+       * "Registrar venta" a partir del mismo listado, para que ambas
+       * queden siempre sincronizadas (alta, edición, baja y venta
+       * modifican el stock y deben reflejarse en las dos secciones
+       * sin necesidad de recargar la página).
+       */
+      function actualizarVistas(productos) {
+        renderizarProductos(productos);
+        renderizarVenta(productos);
+      }
+
+      /** Muestra un mensaje de error o de éxito debajo de la tabla de venta. */
+      function mostrarMensajeVenta(texto, tipo) {
+        if (!mensajeVenta) {
+          return;
+        }
+        mensajeVenta.textContent = texto;
+        mensajeVenta.className = 'mensaje-formulario ' + (tipo === 'exito' ? 'mensaje-exito' : 'mensaje-error');
+      }
+
+      /** Limpia el mensaje de error/éxito de la sección de venta. */
+      function ocultarMensajeVenta() {
+        if (!mensajeVenta) {
+          return;
+        }
+        mensajeVenta.textContent = '';
+        mensajeVenta.className = 'mensaje-formulario';
+      }
+
+      /** Da formato de moneda (euros, con coma decimal) a un número. */
+      function formatearMoneda(numero) {
+        return '€ ' + (Number(numero) || 0).toLocaleString('es-ES', {
+          minimumFractionDigits: 2,
+          maximumFractionDigits: 2
+        });
+      }
+
+      /**
+       * Construye el HTML de una fila de la tabla de "Registrar venta"
+       * (columnas: Producto, Precio, Stock disponible, Cantidad, Subtotal)
+       * a partir de un producto guardado. La cantidad arranca en 0 (el
+       * producto no está seleccionado hasta que se le indique una cantidad).
+       */
+      function crearFilaVentaHTML(producto) {
+        var precioNumero = Number(producto.precio) || 0;
+        var stockNumero = Number(producto.stock) || 0;
+        var sinStock = stockNumero <= 0;
+
+        return (
+          '<tr data-id-venta="' + escaparHTML(producto.id) + '" data-precio-venta="' + precioNumero + '">' +
+            '<td>' + escaparHTML(producto.nombre) + '</td>' +
+            '<td>' + formatearMoneda(precioNumero) + '</td>' +
+            '<td>' + stockNumero + '</td>' +
+            '<td>' +
+              '<input type="number" class="campo-cantidad-venta" min="0" max="' + stockNumero + '" step="1" value="0"' +
+                (sinStock ? ' disabled title="Sin stock disponible"' : '') +
+              '>' +
+            '</td>' +
+            '<td class="celda-subtotal-venta">' + formatearMoneda(0) + '</td>' +
+          '</tr>'
+        );
+      }
+
+      /**
+       * Vuelve a dibujar la sección "Registrar venta" a partir del listado
+       * de productos: muestra el estado vacío si no hay productos, o la
+       * tabla de venta (con las cantidades reiniciadas en 0) si hay al
+       * menos uno. También reconecta los eventos de la tabla, porque sus
+       * elementos se recrean por completo en cada llamada.
+       */
+      function renderizarVenta(productos) {
+        if (!productos || productos.length === 0) {
+          contenedorVenta.innerHTML =
+            '<div class="estado-vacio">' +
+              '<div class="icono-vacio">🧾</div>' +
+              '<p class="principal">Todavía no hay productos cargados</p>' +
+              '<p class="secundario">Cargá productos en la sección de arriba para poder registrar una venta.</p>' +
+            '</div>';
+          cuerpoTablaVenta = null;
+          totalVentaSpan = null;
+          mensajeVenta = null;
+          botonConfirmarVenta = null;
+          return;
+        }
+
+        contenedorVenta.innerHTML =
+          '<div class="tabla-productos-contenedor">' +
+            '<table class="tabla-productos">' +
+              '<thead><tr><th>Producto</th><th>Precio</th><th>Stock disponible</th><th>Cantidad</th><th>Subtotal</th></tr></thead>' +
+              '<tbody id="cuerpo-tabla-venta">' + productos.map(crearFilaVentaHTML).join('') + '</tbody>' +
+            '</table>' +
+          '</div>' +
+          '<div class="resumen-venta">' +
+            '<p class="mensaje-formulario" id="mensaje-venta" role="alert" aria-live="polite"></p>' +
+            '<div class="fila-total-boton">' +
+              '<div class="total-venta">Total: <span id="total-venta">' + formatearMoneda(0) + '</span></div>' +
+              '<button type="button" class="boton-primario" id="boton-confirmar-venta">Confirmar venta</button>' +
+            '</div>' +
+          '</div>';
+
+        // Los elementos se recrearon: hay que volver a tomar sus referencias y reconectar los eventos.
+        cuerpoTablaVenta = document.getElementById('cuerpo-tabla-venta');
+        totalVentaSpan = document.getElementById('total-venta');
+        mensajeVenta = document.getElementById('mensaje-venta');
+        botonConfirmarVenta = document.getElementById('boton-confirmar-venta');
+
+        cuerpoTablaVenta.addEventListener('input', manejarCambioCantidadVenta);
+        botonConfirmarVenta.addEventListener('click', manejarConfirmarVenta);
+      }
+
+      /**
+       * Recalcula, a partir de los valores actuales en pantalla, el
+       * subtotal de cada fila y el total general de la venta. Se llama
+       * cada vez que el usuario cambia una cantidad, para que el total
+       * se actualice en tiempo real.
+       */
+      function recalcularTotalVenta() {
+        if (!cuerpoTablaVenta) {
+          return 0;
+        }
+
+        var filas = cuerpoTablaVenta.querySelectorAll('tr');
+        var total = 0;
+
+        for (var i = 0; i < filas.length; i++) {
+          var fila = filas[i];
+          var precio = Number(fila.getAttribute('data-precio-venta')) || 0;
+          var inputCantidad = fila.querySelector('.campo-cantidad-venta');
+          var celdaSubtotal = fila.querySelector('.celda-subtotal-venta');
+          var cantidad = inputCantidad ? Number(inputCantidad.value) : 0;
+
+          if (!inputCantidad || isNaN(cantidad) || cantidad < 0) {
+            cantidad = 0;
+          }
+
+          var subtotal = precio * cantidad;
+          if (celdaSubtotal) {
+            celdaSubtotal.textContent = formatearMoneda(subtotal);
+          }
+          total += subtotal;
+        }
+
+        if (totalVentaSpan) {
+          totalVentaSpan.textContent = formatearMoneda(total);
+        }
+
+        return total;
+      }
+
+      /** Maneja el evento "input" dentro de la tabla de venta: recalcula el total en tiempo real. */
+      function manejarCambioCantidadVenta(evento) {
+        if (!evento.target.classList.contains('campo-cantidad-venta')) {
+          return;
+        }
+        ocultarMensajeVenta();
+        recalcularTotalVenta();
+      }
+
+      /**
+       * Maneja el click en "Confirmar venta": valida que haya al menos
+       * un producto seleccionado con una cantidad válida (entera, mayor
+       * a 0 y no superior al stock disponible) y, si todo es correcto,
+       * descuenta el stock vendido, guarda la venta en el historial de
+       * "ventas" y actualiza las vistas sin recargar la página.
+       */
+      function manejarConfirmarVenta(evento) {
+        evento.preventDefault();
+        ocultarMensajeVenta();
+
+        if (!cuerpoTablaVenta) {
+          return;
+        }
+
+        var productos = obtenerProductosGuardados();
+        var filas = cuerpoTablaVenta.querySelectorAll('tr');
+        var itemsVenta = [];
+
+        for (var i = 0; i < filas.length; i++) {
+          var fila = filas[i];
+          var idProducto = Number(fila.getAttribute('data-id-venta'));
+          var inputCantidad = fila.querySelector('.campo-cantidad-venta');
+          var cantidadTexto = inputCantidad ? inputCantidad.value.trim() : '';
+
+          // Una cantidad vacía o en 0 significa que ese producto no fue seleccionado para la venta.
+          if (!cantidadTexto || Number(cantidadTexto) === 0) {
+            continue;
+          }
+
+          var cantidad = Number(cantidadTexto);
+          var producto = productos.find(function (productoActual) {
+            return Number(productoActual.id) === idProducto;
+          });
+
+          if (!producto) {
+            continue; // El producto ya no existe (por ejemplo, se eliminó en otra pestaña); se ignora.
+          }
+
+          // --- Validación: la cantidad debe ser un número entero válido mayor a 0 ---
+          if (!isFinite(cantidad) || !Number.isInteger(cantidad) || cantidad <= 0) {
+            mostrarMensajeVenta('La cantidad de "' + producto.nombre + '" debe ser un número entero mayor a 0.', 'error');
+            return;
+          }
+
+          // --- Validación: la cantidad no puede superar el stock disponible ---
+          var stockDisponible = Number(producto.stock) || 0;
+          if (cantidad > stockDisponible) {
+            mostrarMensajeVenta('No hay suficiente stock de "' + producto.nombre + '". Stock disponible: ' + stockDisponible + '.', 'error');
+            return;
+          }
+
+          itemsVenta.push({
+            id: producto.id,
+            nombre: producto.nombre,
+            precioUnitario: Number(producto.precio) || 0,
+            cantidad: cantidad,
+            subtotal: (Number(producto.precio) || 0) * cantidad
+          });
+        }
+
+        // --- Validación: debe haber al menos un producto seleccionado ---
+        if (itemsVenta.length === 0) {
+          mostrarMensajeVenta('Seleccioná al menos un producto e indicá una cantidad para registrar la venta.', 'error');
+          return;
+        }
+
+        // --- Todo válido: se descuenta el stock vendido de cada producto ---
+        itemsVenta.forEach(function (item) {
+          var indice = productos.findIndex(function (productoActual) {
+            return Number(productoActual.id) === Number(item.id);
+          });
+          if (indice !== -1) {
+            productos[indice].stock = (Number(productos[indice].stock) || 0) - item.cantidad;
+          }
+        });
+
+        if (!guardarProductosEnStorage(productos)) {
+          mostrarMensajeVenta('No se pudo registrar la venta: el navegador bloqueó el almacenamiento local.', 'error');
+          return;
+        }
+
+        // --- Se guarda la venta en el historial de "ventas" (sin sobrescribir las anteriores) ---
+        var totalVenta = itemsVenta.reduce(function (acumulado, item) {
+          return acumulado + item.subtotal;
+        }, 0);
+
+        var nuevaVenta = {
+          fecha: new Date().toISOString(),
+          productos: itemsVenta,
+          cantidades: itemsVenta.map(function (item) { return item.cantidad; }),
+          total: totalVenta
+        };
+
+        var ventaGuardada = agregarVentaAlHistorial(nuevaVenta);
+
+        // --- Se actualizan las vistas: el listado de productos, la sección de venta y los reportes ---
+        actualizarVistas(productos);
+        renderizarReportes();
+
+        if (!ventaGuardada) {
+          mostrarMensajeVenta('El stock se descontó correctamente, pero la venta no se pudo guardar en el historial.', 'error');
+          return;
+        }
+
+        mostrarMensajeVenta('Venta registrada correctamente. Total: ' + formatearMoneda(totalVenta), 'exito');
+      }
+
+      /**
+       * Maneja el click en "Guardar producto": valida los datos
+       * obligatorios y, si son válidos, guarda el producto en
+       * localStorage y actualiza el listado en pantalla.
+       */
+      function manejarGuardarProducto(evento) {
+        evento.preventDefault();
+        ocultarMensaje();
+
+        var nombre = campoNombre.value.trim();
+        var precioTexto = campoPrecio.value.trim();
+
+        // --- Validación: el nombre no puede estar vacío ---
+        if (!nombre) {
+          mostrarMensaje('El nombre del producto no puede estar vacío.', 'error');
+          campoNombre.focus();
+          return;
+        }
+
+        // --- Validación: el precio no puede estar vacío ---
+        if (!precioTexto) {
+          mostrarMensaje('El precio no puede estar vacío.', 'error');
+          campoPrecio.focus();
+          return;
+        }
+
+        // --- Validación: el precio debe ser un número válido ---
+        var precioNumero = Number(precioTexto);
+        if (isNaN(precioNumero)) {
+          mostrarMensaje('El precio debe ser un número válido.', 'error');
+          campoPrecio.focus();
+          return;
+        }
+
+        // --- Datos válidos: se arman los datos del producto ---
+        var productos = obtenerProductosGuardados();
+        var estadoSeleccionado = formulario.querySelector('input[name="estado"]:checked');
+        var stockTexto = campoStock.value.trim();
+        var stockMinimoTexto = campoStockMinimo.value.trim();
+
+        var datosProducto = {
+          nombre: nombre,
+          categoria: campoCategoria.value,
+          marca: campoMarca.value.trim(),
+          precio: precioNumero,
+          stock: stockTexto ? Number(stockTexto) : 0,
+          stockMinimo: stockMinimoTexto ? Number(stockMinimoTexto) : 0,
+          descripcion: campoDescripcion.value.trim(),
+          estado: estadoSeleccionado ? estadoSeleccionado.value : 'activo'
+        };
+
+        var seEstaEditando = idEnEdicion !== null;
+
+        if (seEstaEditando) {
+          // --- Modo edición: se actualiza el producto existente por su ID, sin crear uno nuevo ---
+          var indiceExistente = productos.findIndex(function (producto) {
+            return Number(producto.id) === Number(idEnEdicion);
+          });
+
+          if (indiceExistente === -1) {
+            // El producto ya no está en localStorage (por ejemplo, se modificó desde otra pestaña).
+            mostrarMensaje('El producto que estabas editando ya no existe. Puede haber sido modificado en otra pestaña.', 'error');
+            salirDeModoEdicion();
+            limpiarFormulario();
+            actualizarVistas(productos);
+            return;
+          }
+
+          datosProducto.id = productos[indiceExistente].id; // conserva el ID original
+          productos[indiceExistente] = datosProducto;
+        } else {
+          // --- Modo alta: se genera un ID nuevo y se agrega al listado ---
+          datosProducto.id = generarNuevoId(productos);
+          productos.push(datosProducto);
+        }
+
+        if (!guardarProductosEnStorage(productos)) {
+          mostrarMensaje('No se pudo guardar el producto: el navegador bloqueó el almacenamiento local.', 'error');
+          return;
+        }
+
+        actualizarVistas(productos);
+        salirDeModoEdicion();
+        limpiarFormulario();
+        mostrarMensaje(seEstaEditando ? 'Producto actualizado correctamente.' : 'Producto guardado correctamente.', 'exito');
+      }
+
+      /** Maneja el click en "Cancelar": limpia el formulario y sale del modo edición, sin guardar nada. */
+      function manejarCancelar(evento) {
+        evento.preventDefault();
+        salirDeModoEdicion();
+        limpiarFormulario();
+        ocultarMensaje();
+      }
+
+      /**
+       * Elimina un producto de localStorage por su ID, pidiendo antes
+       * confirmación al usuario con el nombre del producto. Si el
+       * usuario cancela, no se modifica nada.
+       */
+      function manejarEliminarProducto(idProducto) {
+        var productos = obtenerProductosGuardados();
+        var producto = productos.find(function (producto) {
+          return Number(producto.id) === idProducto;
+        });
+
+        if (!producto) {
+          mostrarMensaje('No se pudo encontrar el producto seleccionado.', 'error');
+          return;
+        }
+
+        var confirmoEliminar = window.confirm('¿Seguro que querés eliminar ' + producto.nombre + '?');
+        if (!confirmoEliminar) {
+          return; // El usuario canceló: no se elimina nada, localStorage y el listado quedan igual.
+        }
+
+        var productosRestantes = productos.filter(function (producto) {
+          return Number(producto.id) !== idProducto;
+        });
+
+        if (!guardarProductosEnStorage(productosRestantes)) {
+          mostrarMensaje('No se pudo eliminar el producto: el navegador bloqueó el almacenamiento local.', 'error');
+          return;
+        }
+
+        // Si el producto eliminado era el que se estaba editando, se sale del modo edición.
+        if (idEnEdicion !== null && Number(idEnEdicion) === idProducto) {
+          salirDeModoEdicion();
+          limpiarFormulario();
+        }
+
+        actualizarVistas(productosRestantes);
+        mostrarMensaje('Producto eliminado correctamente.', 'exito');
+      }
+
+      /**
+       * Maneja los clicks dentro del listado de productos. Usa delegación
+       * de eventos sobre el contenedor (que se vuelve a dibujar en cada
+       * renderizado) para detectar los clicks en los botones "Editar" y
+       * "Eliminar" de cualquier fila.
+       */
+      function manejarClickEnListado(evento) {
+        var botonEditar = evento.target.closest('.boton-editar');
+        if (botonEditar) {
+          var idParaEditar = Number(botonEditar.getAttribute('data-id'));
+          var productos = obtenerProductosGuardados();
+          var producto = productos.find(function (producto) {
+            return Number(producto.id) === idParaEditar;
+          });
+
+          if (!producto) {
+            mostrarMensaje('No se pudo encontrar el producto seleccionado.', 'error');
+            return;
+          }
+
+          cargarProductoEnFormulario(producto);
+          return;
+        }
+
+        var botonEliminar = evento.target.closest('.boton-eliminar');
+        if (botonEliminar) {
+          var idParaEliminar = Number(botonEliminar.getAttribute('data-id'));
+          manejarEliminarProducto(idParaEliminar);
+        }
+      }
+
+      // --- Eventos ---
+      botonGuardar.addEventListener('click', manejarGuardarProducto);
+      botonCancelar.addEventListener('click', manejarCancelar);
+      contenedorProductos.addEventListener('click', manejarClickEnListado);
+      if (botonExportarDatos) {
+        botonExportarDatos.addEventListener('click', manejarExportarDatos);
+      }
+      if (botonImportarDatos) {
+        botonImportarDatos.addEventListener('click', manejarClickImportarDatos);
+      }
+      if (campoImportarArchivo) {
+        campoImportarArchivo.addEventListener('change', manejarArchivoSeleccionado);
+      }
+
+      // --- Carga inicial: mostrar los productos y las ventas ya guardados en localStorage ---
+      actualizarVistas(obtenerProductosGuardados());
+      renderizarReportes();
+    })();
+  </script>
+
+</body>
+</html>
